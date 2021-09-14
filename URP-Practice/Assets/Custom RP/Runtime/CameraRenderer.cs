@@ -17,6 +17,8 @@ public class CameraRenderer
 
     private CullingResults cullingResults;
 
+    private static ShaderTagId unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit");
+
     public void Render(ScriptableRenderContext context, Camera camera)
     {
         this.context = context;
@@ -26,7 +28,7 @@ public class CameraRenderer
         {
             return;
         }
-        
+
         Setup();
         DrawVisibleGeometry();
         Submit();
@@ -35,12 +37,12 @@ public class CameraRenderer
     private void Setup()
     {
         context.SetupCameraProperties(camera);
-        
+
         //之前已经画过得东西仍然存在，可能会干扰现在渲染的图像。为了保证正常渲染，必须清除渲染目标，消除旧的内容
         buffer.ClearRenderTarget(true, true, Color.clear);
-        
+
         buffer.BeginSample(bufferName);
-        
+
         ExcuteBuffer();
     }
 
@@ -56,7 +58,22 @@ public class CameraRenderer
 
     private void DrawVisibleGeometry()
     {
+        var sortingSetting = new SortingSettings(camera)
+        {
+            //设置绘制顺序
+            criteria = SortingCriteria.CommonOpaque
+        };
+        var drawingSettings = new DrawingSettings(unlitShaderTagId, sortingSetting);
+        var filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
+
+        context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
         context.DrawSkybox(camera);
+
+        sortingSetting.criteria = SortingCriteria.CommonTransparent;
+        drawingSettings.sortingSettings = sortingSetting;
+        filteringSettings.renderQueueRange = RenderQueueRange.transparent;
+        
+        context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
     }
 
     private void ExcuteBuffer()
@@ -65,6 +82,11 @@ public class CameraRenderer
         buffer.Clear();
     }
 
+
+    /// <summary>
+    /// 裁剪
+    /// </summary>
+    /// <returns></returns>
     private bool Cull()
     {
         if (camera.TryGetCullingParameters(out ScriptableCullingParameters p))
