@@ -19,6 +19,21 @@ public class CameraRenderer
 
     private static ShaderTagId unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit");
 
+    private static Material errorMaterial;
+
+    /// <summary>
+    /// 不受支持的Shader
+    /// </summary>
+    private static ShaderTagId[] legacyShaderTagIds =
+    {
+        new ShaderTagId("Always"),
+        new ShaderTagId("ForwardBase"),
+        new ShaderTagId("PrepassBase"),
+        new ShaderTagId("Vertex"),
+        new ShaderTagId("VertexLMRGBM"),
+        new ShaderTagId("VertexLM"),
+    };
+
     public void Render(ScriptableRenderContext context, Camera camera)
     {
         this.context = context;
@@ -31,6 +46,7 @@ public class CameraRenderer
 
         Setup();
         DrawVisibleGeometry();
+        DrawUnsupportedShaders();
         Submit();
     }
 
@@ -72,7 +88,7 @@ public class CameraRenderer
         sortingSetting.criteria = SortingCriteria.CommonTransparent;
         drawingSettings.sortingSettings = sortingSetting;
         filteringSettings.renderQueueRange = RenderQueueRange.transparent;
-        
+
         context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
     }
 
@@ -96,5 +112,24 @@ public class CameraRenderer
         }
 
         return false;
+    }
+
+    private void DrawUnsupportedShaders()
+    {
+        if (errorMaterial == null)
+        {
+            errorMaterial = new Material(Shader.Find("Hidden/InternalErrorShader"));
+        }
+        var drawingSettings = new DrawingSettings(legacyShaderTagIds[0], new SortingSettings(camera))
+        {
+            overrideMaterial = errorMaterial
+        };
+        for (int i = 1; i < legacyShaderTagIds.Length; i++)
+        {
+            drawingSettings.SetShaderPassName(i, legacyShaderTagIds[i]);
+        }
+
+        var filteringSettings = FilteringSettings.defaultValue;
+        context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
     }
 }
