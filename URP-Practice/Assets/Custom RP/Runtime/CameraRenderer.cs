@@ -6,7 +6,7 @@ using UnityEngine.Rendering;
 /// <summary>
 /// 用于渲染单个摄像机
 /// </summary>
-public class CameraRenderer
+public partial class CameraRenderer
 {
     private ScriptableRenderContext context;
     private Camera camera;
@@ -19,26 +19,13 @@ public class CameraRenderer
 
     private static ShaderTagId unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit");
 
-    private static Material errorMaterial;
-
-    /// <summary>
-    /// 不受支持的Shader
-    /// </summary>
-    private static ShaderTagId[] legacyShaderTagIds =
-    {
-        new ShaderTagId("Always"),
-        new ShaderTagId("ForwardBase"),
-        new ShaderTagId("PrepassBase"),
-        new ShaderTagId("Vertex"),
-        new ShaderTagId("VertexLMRGBM"),
-        new ShaderTagId("VertexLM"),
-    };
-
     public void Render(ScriptableRenderContext context, Camera camera)
     {
         this.context = context;
         this.camera = camera;
 
+        PrepareBuffer();
+        PrepareForSceneWindow();
         if (!Cull())
         {
             return;
@@ -47,17 +34,21 @@ public class CameraRenderer
         Setup();
         DrawVisibleGeometry();
         DrawUnsupportedShaders();
+        DrawGizmos();
         Submit();
     }
 
     private void Setup()
     {
         context.SetupCameraProperties(camera);
-
+        CameraClearFlags flags = camera.clearFlags;
         //之前已经画过得东西仍然存在，可能会干扰现在渲染的图像。为了保证正常渲染，必须清除渲染目标，消除旧的内容
-        buffer.ClearRenderTarget(true, true, Color.clear);
+        buffer.ClearRenderTarget(flags <= CameraClearFlags.Depth,
+            flags == CameraClearFlags.Color,
+            flags == CameraClearFlags.Color ? camera.backgroundColor.linear : Color.clear
+        );
 
-        buffer.BeginSample(bufferName);
+        buffer.BeginSample(SampleName);
 
         ExcuteBuffer();
     }
@@ -67,7 +58,7 @@ public class CameraRenderer
     /// </summary>
     private void Submit()
     {
-        buffer.EndSample(bufferName);
+        buffer.EndSample(SampleName);
         ExcuteBuffer();
         context.Submit();
     }
@@ -112,24 +103,5 @@ public class CameraRenderer
         }
 
         return false;
-    }
-
-    private void DrawUnsupportedShaders()
-    {
-        if (errorMaterial == null)
-        {
-            errorMaterial = new Material(Shader.Find("Hidden/InternalErrorShader"));
-        }
-        var drawingSettings = new DrawingSettings(legacyShaderTagIds[0], new SortingSettings(camera))
-        {
-            overrideMaterial = errorMaterial
-        };
-        for (int i = 1; i < legacyShaderTagIds.Length; i++)
-        {
-            drawingSettings.SetShaderPassName(i, legacyShaderTagIds[i]);
-        }
-
-        var filteringSettings = FilteringSettings.defaultValue;
-        context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
     }
 }
