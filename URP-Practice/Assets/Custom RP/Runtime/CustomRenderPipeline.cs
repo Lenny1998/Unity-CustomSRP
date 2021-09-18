@@ -7,6 +7,12 @@ public class CustomRenderPipeline : RenderPipeline
 {
     private CameraRenderer renderer = new CameraRenderer();
 
+    public CustomRenderPipeline()
+    {
+        //启用SRP批处理
+        GraphicsSettings.useScriptableRenderPipelineBatching = true;
+    }
+
     /// <summary>
     /// Render方法 Unity每一帧都会调用
     /// </summary>
