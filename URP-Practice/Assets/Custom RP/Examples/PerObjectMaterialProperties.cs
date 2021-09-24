@@ -7,11 +7,15 @@ using UnityEngine;
 public class PerObjectMaterialProperties : MonoBehaviour
 {
     private static int baseColorId = Shader.PropertyToID("_BaseColor");
+    private static int cutoffId = Shader.PropertyToID("_Cutoff");
 
     private static MaterialPropertyBlock block;
     
     [SerializeField]
-    Color baseColor = Color.white;
+    private Color baseColor = Color.white;
+
+    [SerializeField, Range(0f, 1f)] 
+    private float cutoff = 0.5f;
 
     private void Awake()
     {
@@ -26,6 +30,7 @@ public class PerObjectMaterialProperties : MonoBehaviour
         }
         
         block.SetColor(baseColorId, baseColor);
+        block.SetFloat(cutoffId, cutoff);
         GetComponent<Renderer>().SetPropertyBlock(block);
     }
 }

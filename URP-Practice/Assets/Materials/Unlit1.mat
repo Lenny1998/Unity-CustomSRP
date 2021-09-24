@@ -9,16 +9,20 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Unlit1
   m_Shader: {fileID: 4800000, guid: d73abb95e588a404bbbc24f0ad5f4eab, type: 3}
-  m_ShaderKeywords: 
+  m_ShaderKeywords: _CLIPPING
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 2450
   stringTagMap: {}
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 2800000, guid: 2664afa3ba18c405ca58a073b00316fd, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -57,7 +61,8 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _BumpScale: 1
-    - _Cutoff: 0.5
+    - _Clipping: 1
+    - _Cutoff: 0.199
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _GlossMapScale: 1
@@ -73,6 +78,6 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 1, g: 0.4481132, b: 0.4481132, a: 1}
+    - _BaseColor: {r: 0.29170775, g: 1, b: 0, a: 0.2901961}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
