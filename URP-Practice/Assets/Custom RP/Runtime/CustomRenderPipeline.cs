@@ -7,10 +7,14 @@ public class CustomRenderPipeline : RenderPipeline
 {
     private CameraRenderer renderer = new CameraRenderer();
 
-    public CustomRenderPipeline()
+    private bool useDynamicBatching, useGPUInstancing;
+
+    public CustomRenderPipeline(bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatcher)
     {
+        this.useDynamicBatching = useDynamicBatching;
+        this.useGPUInstancing = useGPUInstancing;
         //启用SRP批处理
-        GraphicsSettings.useScriptableRenderPipelineBatching = true;
+        GraphicsSettings.useScriptableRenderPipelineBatching = useSRPBatcher;
     }
 
     /// <summary>
@@ -22,7 +26,7 @@ public class CustomRenderPipeline : RenderPipeline
     {
         foreach (var camera in cameras)
         {
-            renderer.Render(context, camera);
+            renderer.Render(context, camera, useDynamicBatching, useGPUInstancing);
         }
     }
 }
