@@ -7,6 +7,9 @@
         _Cutoff("Alpha Cutoff", Range(0.0,1.0)) = 0.5
         [Toggle(_CLIPPING)] _Clipping("Alpha Clipping", Float) = 0
 
+        _Metallic ("Metallic",Range(0, 1)) = 0
+        _Smoothness ("Smoothness",Range(0, 1)) = 0.5
+
         //不透明渲染和透明渲染之间的主要区别是，是替换之前绘制的任何内容还是与之前的结果结合以产生透视效果。
         //可以通过设置源和目标混合模式来控制。这里的源是指现在绘制的内容，目标是先前绘制的内容
         //默认值表示我们已经使用的不透明混合配置。源设置为1，表示完全添加，而目标设置为零，表示忽略。
