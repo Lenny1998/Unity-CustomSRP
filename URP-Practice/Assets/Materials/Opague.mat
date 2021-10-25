@@ -25,11 +25,11 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _Clipping: 0
-    - _Cutoff: 0.5
+    - _Cutoff: 0.221
     - _DstBlend: 0
     - _Metallic: 0
-    - _Smoothness: 0.5
+    - _Smoothness: 0.676
     - _SrcBlend: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    - _BaseColor: {r: 1, g: 0, b: 0, a: 1}
