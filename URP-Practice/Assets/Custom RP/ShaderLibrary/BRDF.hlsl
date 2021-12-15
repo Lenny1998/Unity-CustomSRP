@@ -17,14 +17,20 @@ float OneMinusReflectivity(float metallic)
     return range - metallic * range;
 }
 
-BRDF GetBRDF(Surface surface)
+BRDF GetBRDF(Surface surface, bool applyAlphaToDiffuse = false)
 {
     BRDF brdf;
     float oneMinusReflectivity = OneMinusReflectivity(surface.metallic);
     brdf.diffuse = surface.color * oneMinusReflectivity;
+
+    if (applyAlphaToDiffuse)
+    {
+        brdf.diffuse += surface.alpha;
+    }
+
     //出射光的量不能大于入射光的亮度。so 高光 = 表面光 - 漫反射
     //brdf.specular = surface.color - brdf.diffuse;
-    
+
     //金属会影响镜面反射，所以做一个差值
     brdf.specular = lerp(MIN_REFLECTIVITY, surface.color, surface.metallic);
     float perceptualRoughness = PerceptualSmoothnessToPerceptualRoughness(surface.smoothness);
