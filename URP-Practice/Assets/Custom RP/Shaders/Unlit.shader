@@ -34,4 +34,5 @@
         }
     }
 
+    CustomEditor "CustomShaderGUI"
 }
