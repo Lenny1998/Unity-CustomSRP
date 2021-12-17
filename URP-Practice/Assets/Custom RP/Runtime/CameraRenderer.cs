@@ -22,23 +22,27 @@ public partial class CameraRenderer
 
     private Lighting lighting = new Lighting();
 
-    public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing)
+    public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing, ShadowSettings shadowSettings)
     {
         this.context = context;
         this.camera = camera;
 
         PrepareBuffer();
         PrepareForSceneWindow();
-        if (!Cull())
+        if (!Cull(shadowSettings.maxDistance))
         {
             return;
         }
 
+        buffer.BeginSample(SampleName);
+        ExecuteBuffer();
+        lighting.Setup(context, cullingResults, shadowSettings);
+        buffer.EndSample(SampleName);
         Setup();
-        lighting.Setup(context, cullingResults);
         DrawVisibleGeometry(useDynamicBatching, useGPUInstancing);
         DrawUnsupportedShaders();
         DrawGizmos();
+        lighting.Cleanup();
         Submit();
     }
 
@@ -54,7 +58,7 @@ public partial class CameraRenderer
 
         buffer.BeginSample(SampleName);
 
-        ExcuteBuffer();
+        ExecuteBuffer();
     }
 
     /// <summary>
@@ -63,7 +67,7 @@ public partial class CameraRenderer
     private void Submit()
     {
         buffer.EndSample(SampleName);
-        ExcuteBuffer();
+        ExecuteBuffer();
         context.Submit();
     }
 
@@ -92,7 +96,7 @@ public partial class CameraRenderer
         context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
     }
 
-    private void ExcuteBuffer()
+    private void ExecuteBuffer()
     {
         context.ExecuteCommandBuffer(buffer);
         buffer.Clear();
@@ -103,10 +107,11 @@ public partial class CameraRenderer
     /// 裁剪
     /// </summary>
     /// <returns></returns>
-    private bool Cull()
+    private bool Cull(float maxShadowDistance)
     {
         if (camera.TryGetCullingParameters(out ScriptableCullingParameters p))
         {
+            p.shadowDistance = Mathf.Min(maxShadowDistance, camera.farClipPlane);
             cullingResults = context.Cull(ref p);
             return true;
         }
