@@ -28,7 +28,10 @@ public class Shadows
 
     private int ShadowedDirectionalLightCount;
 
-    private static int dirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas");
+    private static int dirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas"),
+        dirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices");
+
+    private static Matrix4x4[] dirShadowMatrices = new Matrix4x4[maxShadowedDirectionalLightCount];
 
     /// <summary>
     /// 初始化
@@ -51,14 +54,17 @@ public class Shadows
         buffer.Clear();
     }
 
-    public void ReserveDirectionalShadows(Light light, int visibleLightIndex)
+    public Vector2 ReserveDirectionalShadows(Light light, int visibleLightIndex)
     {
         if (ShadowedDirectionalLightCount < maxShadowedDirectionalLightCount && light.shadows != LightShadows.None &&
             light.shadowStrength > 0f && cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds b))
         {
-            shadowedDirectionalLights[ShadowedDirectionalLightCount++] = new ShadowedDirectionalLight()
+            shadowedDirectionalLights[ShadowedDirectionalLightCount] = new ShadowedDirectionalLight()
                 {visibleLightIndex = visibleLightIndex};
+            return new Vector2(light.shadowStrength, ShadowedDirectionalLightCount++);
         }
+
+        return Vector2.zero;
     }
 
     public void Render()
@@ -87,6 +93,8 @@ public class Shadows
             RenderDirectionalShadows(i, split, tileSize);
         }
 
+        //渲染完所有阴影光后，通过调用缓冲区上的SetGlobalMatrixArray将矩阵发给GPU。
+        buffer.SetGlobalMatrixArray(dirShadowMatricesId, dirShadowMatrices);
         buffer.EndSample(bufferName);
         ExecuteBuffer();
     }
@@ -99,7 +107,11 @@ public class Shadows
             tileSize,
             0f, out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix, out ShadowSplitData splitData);
         shadowSettings.splitData = splitData;
-        SetTileViewPort(index, split, tileSize);
+
+        //灯光的投影矩阵和RenderDirectionalShadows中的视图矩阵相乘，创建从世界空间到灯光空间的转换矩阵
+        dirShadowMatrices[index] =
+            ConvertToAtlasMatrix(projectionMatrix * viewMatrix, SetTileViewPort(index, split, tileSize), split);
+
         buffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
         ExecuteBuffer();
         context.DrawShadows(ref shadowSettings);
@@ -114,9 +126,39 @@ public class Shadows
         }
     }
 
-    private void SetTileViewPort(int index, int split, float titleSize)
+    private Vector2 SetTileViewPort(int index, int split, float titleSize)
     {
         Vector2 offset = new Vector2(index % split, index / split);
         buffer.SetViewport(new Rect(offset.x * titleSize, offset.y * titleSize, titleSize, titleSize));
+        return offset;
+    }
+
+    /// <summary>
+    /// 获取一个从世界空间转换为阴影图块空间的矩阵
+    /// </summary>
+    /// <param name="m"></param>
+    /// <param name="offset"></param>
+    /// <param name="split"></param>
+    /// <returns></returns>
+    private Matrix4x4 ConvertToAtlasMatrix(Matrix4x4 m, Vector2 offset, int split)
+    {
+        if (SystemInfo.usesReversedZBuffer)
+        {
+            m.m20 = -m.m20;
+            m.m21 = -m.m21;
+            m.m22 = -m.m22;
+            m.m23 = -m.m23;
+        }
+
+        float scale = 1f / split;
+        m.m00 = (0.5f * (m.m00 + m.m30) + offset.x * m.m30) * scale;
+        m.m01 = (0.5f * (m.m01 + m.m31) + offset.x * m.m31) * scale;
+        m.m02 = (0.5f * (m.m02 + m.m32) + offset.x * m.m32) * scale;
+        m.m03 = (0.5f * (m.m03 + m.m33) + offset.x * m.m33) * scale;
+        m.m10 = (0.5f * (m.m10 + m.m30) + offset.y * m.m30) * scale;
+        m.m11 = (0.5f * (m.m11 + m.m31) + offset.y * m.m31) * scale;
+        m.m12 = (0.5f * (m.m12 + m.m32) + offset.y * m.m32) * scale;
+        m.m13 = (0.5f * (m.m13 + m.m33) + offset.y * m.m33) * scale;
+        return m;
     }
 }
