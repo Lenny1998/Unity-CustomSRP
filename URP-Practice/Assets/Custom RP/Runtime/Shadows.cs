@@ -29,8 +29,12 @@ public class Shadows
     private int ShadowedDirectionalLightCount;
 
     private static int dirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas"),
-        dirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices");
+        dirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices"),
+        cascadeCountId = Shader.PropertyToID("_CascadeCount"),
+        cascadeCullingSpheresId = Shader.PropertyToID("_CascadeCullingSpheres");
 
+    private static Vector4[] cascadeCullingSpheres = new Vector4[maxCascades];
+    
     private static Matrix4x4[] dirShadowMatrices = new Matrix4x4[maxShadowedDirectionalLightCount * maxCascades];
 
     /// <summary>
@@ -94,6 +98,9 @@ public class Shadows
         {
             RenderDirectionalShadows(i, split, tileSize);
         }
+        
+        buffer.SetGlobalInt(cascadeCountId, settings.directional.cascadeCount);
+        buffer.SetGlobalVectorArray(cascadeCullingSpheresId, cascadeCullingSpheres);
 
         //渲染完所有阴影光后，通过调用缓冲区上的SetGlobalMatrixArray将矩阵发给GPU。
         buffer.SetGlobalMatrixArray(dirShadowMatricesId, dirShadowMatrices);
@@ -117,6 +124,12 @@ public class Shadows
                 tileSize,
                 0f, out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix, out ShadowSplitData splitData);
             shadowSettings.splitData = splitData;
+            if (index == 0)
+            {
+                Vector4 cullingSphere = splitData.cullingSphere;
+                cullingSphere.w *= cullingSphere.w;
+                cascadeCullingSpheres[i] = cullingSphere;
+            }
             int tileIndex = tileOffset + i;
 
             //灯光的投影矩阵和RenderDirectionalShadows中的视图矩阵相乘，创建从世界空间到灯光空间的转换矩阵
