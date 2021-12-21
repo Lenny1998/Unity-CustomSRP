@@ -5,8 +5,8 @@ public class ShadowSettings
 {
     [Min(0f)]
     public float maxDistance = 100f;
-    
-    public enum TextureSize
+
+    public enum MapSize
     {
         _256 = 256,
         _512 = 512,
@@ -19,11 +19,19 @@ public class ShadowSettings
     [System.Serializable]
     public struct Directional
     {
-        public TextureSize atlasSize;
+        public MapSize atlasSize;
+
+        [Range(1, 4)]
+        public int cascadeCount; //级联
+
+        [Range(0f, 1f)]
+        public float cascadeRatio1, cascadeRatio2, cascadeRatio3;
+
+        public Vector3 CascadeRatios => new Vector3(cascadeRatio1, cascadeRatio2, cascadeRatio3);
     }
 
     public Directional directional = new Directional()
     {
-        atlasSize = TextureSize._1024
+        atlasSize = MapSize._1024
     };
 }
