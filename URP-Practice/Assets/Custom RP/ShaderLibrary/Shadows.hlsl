@@ -1,4 +1,6 @@
-﻿#ifndef CUSTOM_SHADOWS_INCLUDED
+﻿#include "Common.hlsl"
+
+#ifndef CUSTOM_SHADOWS_INCLUDED
 #define CUSTOM_SHADOWS_INCLUDED
 
 #define MAX_SHADOWED_DIRECTIONAL_LIGHT_COUNT 4
@@ -10,6 +12,8 @@ SAMPLER_CMP(SHADOW_SAMPLER);
 
 CBUFFER_START(_CustomShadow)
 float4x4 _DirectionalShadowMatrices[MAX_SHADOWED_DIRECTIONAL_LIGHT_COUNT * MAX_CASCADE_COUNT];
+int _CascadeCount;
+float4 _CascadeCullingSpheres[MAX_CASCADE_COUNT];
 CBUFFER_END
 
 struct DirectionalShadowData
@@ -17,6 +21,33 @@ struct DirectionalShadowData
     float strength;
     int tileIndex;
 };
+
+struct ShadowData
+{
+    int cascadeIndex;
+};
+
+float DistanceSquared(float3 pA, float3 pB)
+{
+    return dot(pA - pB, pA - pB);
+}
+
+ShadowData GetShadowData(Surface surfaceWS)
+{
+    ShadowData data;
+    int i;
+    for (i = 0; i < _CascadeCount; i++)
+    {
+        float4 sphere = _CascadeCullingSpheres[i];
+        float distanceSqr = DistanceSquared(surfaceWS.position, sphere.xyz);
+        if (distanceSqr < sphere.w)
+        {
+            break;
+        }
+    }
+    data.cascadeIndex = i;
+    return data;
+}
 
 float SampleDirectionalShadowAtlas(float3 positionSTS)
 {
@@ -29,7 +60,7 @@ float GetDirectionalShadowAttenuation(DirectionalShadowData data, Surface surfac
     {
         return 1.0;
     }
-    
+
     float3 positionSTS = mul(_DirectionalShadowMatrices[data.tileIndex], float4(surfaceWS.position, 1.0)).xyz;
     float3 shadow = SampleDirectionalShadowAtlas(positionSTS);
     return lerp(1.0, shadow, data.strength);
