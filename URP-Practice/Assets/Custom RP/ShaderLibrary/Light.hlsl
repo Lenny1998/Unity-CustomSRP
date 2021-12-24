@@ -17,7 +17,7 @@ struct Light
 {
     float3 color;
     float3 direction;
-    float attenuation;  //衰减
+    float attenuation; //衰减
 };
 
 int GetDirectionalLightCount()
@@ -34,7 +34,7 @@ DirectionalShadowData GetDirectionalShadowData(int lightIndex, ShadowData shadow
     return data;
 }
 
-Light GetDirectionLight(int index, Surface surfaceWS, ShadowData shadowData)
+Light GetDirectionalLight(int index, Surface surfaceWS, ShadowData shadowData)
 {
     Light light;
     light.color = _DirectionalLightColors[index].rgb;

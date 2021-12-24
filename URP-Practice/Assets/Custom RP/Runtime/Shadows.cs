@@ -87,6 +87,10 @@ public class Shadows
         {
             RenderDirectionalShadows();
         }
+        else
+        {
+            buffer.GetTemporaryRT(dirShadowAtlasId, 1, 1, 32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
+        }
     }
 
     private void RenderDirectionalShadows()
@@ -146,7 +150,7 @@ public class Shadows
 
             //灯光的投影矩阵和RenderDirectionalShadows中的视图矩阵相乘，创建从世界空间到灯光空间的转换矩阵
             dirShadowMatrices[tileIndex] =
-                ConvertToAtlasMatrix(projectionMatrix * viewMatrix, SetTileViewPort(tileIndex, split, tileSize), split);
+                ConvertToAtlasMatrix(projectionMatrix * viewMatrix, SetTileViewport(tileIndex, split, tileSize), split);
 
             buffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
             buffer.SetGlobalDepthBias(0f, light.slopeScaleBias);
@@ -173,7 +177,7 @@ public class Shadows
         }
     }
 
-    private Vector2 SetTileViewPort(int index, int split, float titleSize)
+    private Vector2 SetTileViewport(int index, int split, float titleSize)
     {
         Vector2 offset = new Vector2(index % split, index / split);
         buffer.SetViewport(new Rect(offset.x * titleSize, offset.y * titleSize, titleSize, titleSize));

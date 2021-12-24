@@ -3,13 +3,16 @@
 [System.Serializable]
 public class ShadowSettings
 {
+    /// <summary>
+    /// 渲染阴影的最大距离
+    /// </summary>
     [Min(0.001f)]
     public float maxDistance = 100f;
 
     [Range(0.001f, 1f)]
     public float distanceFade = 0.1f;
 
-    public enum TextrueSize
+    public enum TextureSize
     {
         _256 = 256,
         _512 = 512,
@@ -22,7 +25,7 @@ public class ShadowSettings
     [System.Serializable]
     public struct Directional
     {
-        public TextrueSize atlasSize;
+        public TextureSize atlasSize;
 
         [Range(1, 4)]
         public int cascadeCount; //级联
@@ -38,7 +41,11 @@ public class ShadowSettings
 
     public Directional directional = new Directional()
     {
-        atlasSize = TextrueSize._1024,
+        atlasSize = TextureSize._1024,
+        cascadeCount = 4,
+        cascadeRatio1 = 0.1f,
+        cascadeRatio2 = 0.25f,
+        cascadeRatio3 = 0.5f,
         cascadeFade = 0.1f
     };
 }

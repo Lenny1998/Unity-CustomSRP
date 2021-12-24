@@ -42,8 +42,8 @@
             #include "LitPass.hlsl"
             ENDHLSL
         }
-        
-         Pass
+
+        Pass
         {
             Tags
             {
@@ -60,7 +60,7 @@
             #pragma fragment ShadowCasterPassFragment
             #include "ShadowCasterPass.hlsl"
             ENDHLSL
-            
+
         }
     }
 

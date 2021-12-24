@@ -30,11 +30,11 @@ struct Varyings
 Varyings ShadowCasterPassVertex(Attributes input)
 {
     Varyings output;
-    UNITY_SETUP_INSTANCE_ID(input)
+    UNITY_SETUP_INSTANCE_ID(input);
     UNITY_TRANSFER_INSTANCE_ID(input, output);
     float3 positionWS = TransformObjectToWorld(input.positionOS);
     output.positionCS = TransformWorldToHClip(positionWS);
-
+    
     #if UNITY_REVERSED_Z
     output.positionCS.z =
         min(output.positionCS.z, output.positionCS.w * UNITY_NEAR_CLIP_VALUE);
@@ -58,4 +58,5 @@ void ShadowCasterPassFragment(Varyings input)
     clip(base.a - UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Cutoff));
     #endif
 }
+
 #endif
