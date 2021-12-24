@@ -21,6 +21,7 @@ public class Shadows
     private struct ShadowedDirectionalLight
     {
         public int visibleLightIndex;
+        public float slopeScaleBias;
     }
 
     private ShadowedDirectionalLight[] shadowedDirectionalLights =
@@ -61,18 +62,21 @@ public class Shadows
         buffer.Clear();
     }
 
-    public Vector2 ReserveDirectionalShadows(Light light, int visibleLightIndex)
+    public Vector3 ReserveDirectionalShadows(Light light, int visibleLightIndex)
     {
         if (ShadowedDirectionalLightCount < maxShadowedDirectionalLightCount && light.shadows != LightShadows.None &&
             light.shadowStrength > 0f && cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds b))
         {
             shadowedDirectionalLights[ShadowedDirectionalLightCount] = new ShadowedDirectionalLight()
-                {visibleLightIndex = visibleLightIndex};
-            return new Vector2(light.shadowStrength,
-                settings.directional.cascadeCount * ShadowedDirectionalLightCount++);
+            {
+                visibleLightIndex = visibleLightIndex,
+                slopeScaleBias = light.shadowBias
+            };
+            return new Vector3(light.shadowStrength,
+                settings.directional.cascadeCount * ShadowedDirectionalLightCount++, light.shadowNormalBias);
         }
 
-        return Vector2.zero;
+        return Vector3.zero;
     }
 
     public void Render()
@@ -144,16 +148,19 @@ public class Shadows
                 ConvertToAtlasMatrix(projectionMatrix * viewMatrix, SetTileViewPort(tileIndex, split, tileSize), split);
 
             buffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
+            buffer.SetGlobalDepthBias(0f, light.slopeScaleBias);
             ExecuteBuffer();
             context.DrawShadows(ref shadowSettings);
+            buffer.SetGlobalDepthBias(0f, 0f);
         }
     }
 
     private void SetCascadeData(int index, Vector4 cullingSphere, float tileSize)
     {
-        cascadeData[index].x = 1f / cullingSphere.w;
+        float texelSize = 2f * cullingSphere.w / tileSize;
         cullingSphere.w *= cullingSphere.w;
         cascadeCullingSpheres[index] = cullingSphere;
+        cascadeData[index] = new Vector4(1f / cullingSphere.w, texelSize * 1.4142136f);
     }
 
     public void Cleanup()
