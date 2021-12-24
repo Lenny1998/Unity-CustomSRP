@@ -9,7 +9,7 @@ public class ShadowSettings
     [Range(0.001f, 1f)]
     public float distanceFade = 0.1f;
 
-    public enum MapSize
+    public enum TextrueSize
     {
         _256 = 256,
         _512 = 512,
@@ -22,7 +22,7 @@ public class ShadowSettings
     [System.Serializable]
     public struct Directional
     {
-        public MapSize atlasSize;
+        public TextrueSize atlasSize;
 
         [Range(1, 4)]
         public int cascadeCount; //级联
@@ -38,7 +38,7 @@ public class ShadowSettings
 
     public Directional directional = new Directional()
     {
-        atlasSize = MapSize._1024,
+        atlasSize = TextrueSize._1024,
         cascadeFade = 0.1f
     };
 }
