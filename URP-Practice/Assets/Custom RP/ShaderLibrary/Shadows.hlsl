@@ -42,6 +42,7 @@ struct DirectionalShadowData
 struct ShadowData
 {
     int cascadeIndex;
+    float cascadeBlend;
     float strength;
 };
 
@@ -65,7 +66,7 @@ float FilterDirectionalShadow(float3 positionSTS)
         }
         return shadow;
     #else
-        return SampleDirectionalShadowAtlas(positionSTS);
+    return SampleDirectionalShadowAtlas(positionSTS);
     #endif
 }
 
@@ -102,6 +103,14 @@ ShadowData GetShadowData(Surface surfaceWS)
         data.strength = 0.0;
     }
     data.cascadeIndex = i;
+    #if defined(_CASCADE_BLEND_DITHER)
+    else if (data.cascadeBlend < surfaceWS.dither) {
+        i += 1;
+    }
+    #endif
+    #if !defined(_CASCADE_BLEND_SOFT)
+        data.cascadeBlend = 1.0;
+    #endif
     return data;
 }
 
