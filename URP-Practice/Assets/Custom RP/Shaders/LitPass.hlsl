@@ -40,11 +40,12 @@ struct Varyings
 Varyings LitPassVertex(Attributes input)
 {
     Varyings output;
-    UNITY_SETUP_INSTANCE_ID(input)
+    UNITY_SETUP_INSTANCE_ID(input);
     UNITY_TRANSFER_INSTANCE_ID(input, output);
     output.positionWS = TransformObjectToWorld(input.positionOS);
     output.positionCS = TransformWorldToHClip(output.positionWS);
     output.normalWS = TransformObjectToWorldNormal(input.normalOS);
+
     float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseMap_ST);
     output.baseUV = input.baseUV * baseST.xy + baseST.zw;
     return output;
@@ -70,11 +71,10 @@ float4 LitPassFragment(Varyings input):SV_TARGET
     surface.metallic = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Metallic);
     surface.smoothness = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Smoothness);
     surface.dither = InterleavedGradientNoise(input.positionCS.xy, 0);
-    
     #if defined(_PREMULTIPLY_ALPHA)
-        BRDF brdf = GetBRDF(surface, true);
+    BRDF brdf = GetBRDF(surface, true);
     #else
-        BRDF brdf = GetBRDF(surface);
+    BRDF brdf = GetBRDF(surface);
     #endif
     float3 color = GetLighting(surface, brdf);
     return float4(color, surface.alpha);

@@ -1,8 +1,6 @@
 ﻿#ifndef CUSTOM_LIGHTING_INCLUDED
 #define CUSTOM_LIGHTING_INCLUDED
 
-#include "Common.hlsl"
-
 float3 IncomingLight(Surface surface, Light light)
 {
     //当点积为负时，将其限制为零，通过saturate函数来实现。

@@ -1,9 +1,6 @@
 ﻿#ifndef CUSTOM_LIGHT_INCLUDED
 #define CUSTOM_LIGHT_INCLUDED
 
-#include "Shadows.hlsl"
-
-
 #define MAX_DIRECTIONAL_LIGHT_COUNT 4
 
 CBUFFER_START(_CustomLight)

@@ -50,7 +50,6 @@ public class Lighting
     private void SetupLights()
     {
         NativeArray<VisibleLight> visibleLights = cullingResults.visibleLights;
-
         int dirLightCount = 0;
         for (int i = 0; i < visibleLights.Length; i++)
         {
@@ -65,7 +64,7 @@ public class Lighting
             }
         }
 
-        buffer.SetGlobalInt(dirLightCountId, visibleLights.Length);
+        buffer.SetGlobalInt(dirLightCountId, dirLightCount);
         buffer.SetGlobalVectorArray(dirLightColorsId, dirLightColors);
         buffer.SetGlobalVectorArray(dirLightDirectionsId, dirLightDirections);
         buffer.SetGlobalVectorArray(dirLightShadowDataId, dirLightShadowData);

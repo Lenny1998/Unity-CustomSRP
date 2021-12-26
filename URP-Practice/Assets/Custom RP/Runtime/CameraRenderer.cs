@@ -73,12 +73,12 @@ public partial class CameraRenderer
 
     private void DrawVisibleGeometry(bool useDynamicBatching, bool useGPUInstancing)
     {
-        var sortingSetting = new SortingSettings(camera)
+        var sortingSettings = new SortingSettings(camera)
         {
             //设置绘制顺序
             criteria = SortingCriteria.CommonOpaque
         };
-        var drawingSettings = new DrawingSettings(unlitShaderTagId, sortingSetting)
+        var drawingSettings = new DrawingSettings(unlitShaderTagId, sortingSettings)
         {
             enableDynamicBatching = useDynamicBatching,
             enableInstancing = useGPUInstancing
@@ -89,8 +89,8 @@ public partial class CameraRenderer
         context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
         context.DrawSkybox(camera);
 
-        sortingSetting.criteria = SortingCriteria.CommonTransparent;
-        drawingSettings.sortingSettings = sortingSetting;
+        sortingSettings.criteria = SortingCriteria.CommonTransparent;
+        drawingSettings.sortingSettings = sortingSettings;
         filteringSettings.renderQueueRange = RenderQueueRange.transparent;
 
         context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);

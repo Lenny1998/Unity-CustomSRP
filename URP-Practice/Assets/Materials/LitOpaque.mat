@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Lit
+  m_Name: LitOpaque
   m_Shader: {fileID: 4800000, guid: 8763c23427a544d269a3099050bc624c, type: 3}
   m_ShaderKeywords: _RECEIVE_SHADOWS
   m_LightmapFlags: 4
