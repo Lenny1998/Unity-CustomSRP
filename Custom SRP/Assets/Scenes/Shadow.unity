@@ -2431,7 +2431,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1200988693}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.0954752, y: 0, z: -7.74}
+  m_LocalPosition: {x: 0.36, y: 0, z: -7.74}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1684715777}
@@ -2984,7 +2984,7 @@ MonoBehaviour:
   baseColor: {r: 0.80539256, g: 0.98039216, b: 0, a: 1}
   cutoff: 0.591
   metallic: 0
-  smoothness: 0.798
+  smoothness: 0
 --- !u!135 &1489562182
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -3150,7 +3150,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1534579959}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.92, y: 0, z: -7.63}
+  m_LocalPosition: {x: -0.92, y: 0.41, z: -7.63}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -3557,7 +3557,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseColor: {r: 1, g: 0.61752665, b: 0, a: 1}
   cutoff: 0.591
-  metallic: 0
+  metallic: 0.358
   smoothness: 0.798
 --- !u!135 &2136427134
 SphereCollider:
